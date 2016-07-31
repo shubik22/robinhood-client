@@ -1,4 +1,4 @@
-package models
+package robinhood
 
 type User struct {
 	Username        string  `json:"username"`

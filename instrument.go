@@ -1,4 +1,4 @@
-package models
+package robinhood
 
 type Instrument struct {
 	Splits             string `json:"splits"`

@@ -1,20 +1,18 @@
-package client
+package robinhood
 
 import (
 	"net/http"
-
-	"github.com/shubik22/go-robinhood/lib/models"
 )
 
 type AccountService service
 
-func (s *AccountService) ListAccounts() (*models.AccountsResponse, *http.Response, error) {
+func (s *AccountService) ListAccounts() (*AccountsResponse, *http.Response, error) {
 	req, err := s.client.NewRequest("GET", "accounts/", nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	a := &models.AccountsResponse{}
+	a := &AccountsResponse{}
 	resp, err := s.client.Do(req, a)
 
 	if err != nil {

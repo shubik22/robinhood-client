@@ -1,14 +1,12 @@
-package client
+package robinhood
 
 import (
 	"net/http"
-
-	"github.com/shubik22/go-robinhood/lib/models"
 )
 
 type QuoteService service
 
-func (s *QuoteService) GetQuote(p *models.Position) (*models.Quote, *http.Response, error) {
+func (s *QuoteService) GetQuote(p *Position) (*Quote, *http.Response, error) {
 	i, _, err := s.getInstrument(p)
 	if err != nil {
 		return nil, nil, err
@@ -17,13 +15,13 @@ func (s *QuoteService) GetQuote(p *models.Position) (*models.Quote, *http.Respon
 	return s.getQuote(i)
 }
 
-func (s *QuoteService) getInstrument(p *models.Position) (*models.Instrument, *http.Response, error) {
+func (s *QuoteService) getInstrument(p *Position) (*Instrument, *http.Response, error) {
 	req, err := s.client.NewRequestWithFullUrl("GET", p.Instrument, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	i := &models.Instrument{}
+	i := &Instrument{}
 	resp, err := s.client.Do(req, i)
 
 	if err != nil {
@@ -33,13 +31,13 @@ func (s *QuoteService) getInstrument(p *models.Position) (*models.Instrument, *h
 	return i, resp, err
 }
 
-func (s *QuoteService) getQuote(i *models.Instrument) (*models.Quote, *http.Response, error) {
+func (s *QuoteService) getQuote(i *Instrument) (*Quote, *http.Response, error) {
 	req, err := s.client.NewRequestWithFullUrl("GET", i.Quote, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	q := &models.Quote{}
+	q := &Quote{}
 	resp, err := s.client.Do(req, q)
 
 	if err != nil {

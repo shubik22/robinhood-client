@@ -21,7 +21,9 @@ func (s *InstrumentService) GetInstrumentFromSymbol(symbol string) (*Instrument,
 		return nil, resp, err
 	}
 
-	return ir.Results[0], resp, err
+	i := ir.Results[0]
+
+	return &i, resp, err
 }
 
 func (s *InstrumentService) GetInstrumentFromPosition(p *Position) (*Instrument, *http.Response, error) {

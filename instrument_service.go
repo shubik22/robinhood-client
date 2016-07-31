@@ -14,14 +14,14 @@ func (s *InstrumentService) GetInstrumentFromSymbol(symbol string) (*Instrument,
 		return nil, nil, err
 	}
 
-	i := &Instrument{}
-	resp, err := s.client.Do(req, i)
+	ir := &InstrumentsResponse{}
+	resp, err := s.client.Do(req, ir)
 
 	if err != nil {
 		return nil, resp, err
 	}
 
-	return i, resp, err
+	return ir.Results[0], resp, err
 }
 
 func (s *InstrumentService) GetInstrumentFromPosition(p *Position) (*Instrument, *http.Response, error) {

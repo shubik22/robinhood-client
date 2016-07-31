@@ -7,28 +7,12 @@ import (
 type QuoteService service
 
 func (s *QuoteService) GetQuote(p *Position) (*Quote, *http.Response, error) {
-	i, _, err := s.getInstrument(p)
+	i, _, err := s.client.Instruments.GetInstrumentFromPosition(p)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	return s.getQuote(i)
-}
-
-func (s *QuoteService) getInstrument(p *Position) (*Instrument, *http.Response, error) {
-	req, err := s.client.NewRequestWithFullUrl("GET", p.Instrument, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	i := &Instrument{}
-	resp, err := s.client.Do(req, i)
-
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return i, resp, err
 }
 
 func (s *QuoteService) getQuote(i *Instrument) (*Quote, *http.Response, error) {

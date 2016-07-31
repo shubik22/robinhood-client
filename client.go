@@ -28,10 +28,11 @@ type Client struct {
 
 	common service
 
-	Accounts  *AccountService
-	Auth      *AuthenticationService
-	Positions *PositionService
-	Quotes    *QuoteService
+	Accounts    *AccountService
+	Auth        *AuthenticationService
+	Instruments *InstrumentSevice
+	Positions   *PositionService
+	Quotes      *QuoteService
 }
 
 func NewClient(username, password string) *Client {
@@ -40,6 +41,7 @@ func NewClient(username, password string) *Client {
 	c.common.client = c
 	c.Accounts = (*AccountService)(&c.common)
 	c.Auth = (*AuthenticationService)(&c.common)
+	c.Instruments = (*InstrumentSevice)(&c.common)
 	c.Positions = (*PositionService)(&c.common)
 	c.Quotes = (*QuoteService)(&c.common)
 	return c

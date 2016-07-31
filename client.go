@@ -33,6 +33,7 @@ type Client struct {
 	Instruments *InstrumentService
 	Positions   *PositionService
 	Quotes      *QuoteService
+	Trades      *TradeService
 }
 
 func NewClient(username, password string) *Client {
@@ -44,6 +45,7 @@ func NewClient(username, password string) *Client {
 	c.Instruments = (*InstrumentService)(&c.common)
 	c.Positions = (*PositionService)(&c.common)
 	c.Quotes = (*QuoteService)(&c.common)
+	c.Trades = (*TradeService)(&c.common)
 	return c
 }
 

@@ -1,6 +1,7 @@
 package robinhood
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -12,40 +13,49 @@ type TradeParams struct {
 	Symbol        string
 	Quantity      int
 	OrderType     string
+	Price         float64
 }
 
 type TradeService service
 
-func (s *TradeService) PlaceTrade(symbol, orderType string, quantity int) (*http.Response, error) {
+func (s *TradeService) PlaceTrade(symbol, orderType string, quantity int) (*OrderResponse, *http.Response, error) {
 	c := s.client
 	ar, _, err := c.Accounts.ListAccounts()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	accountUrl := ar.Results[0].URL
 
 	i, _, err := c.Instruments.GetInstrumentFromSymbol(symbol)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	instrumentUrl := i.URL
+
+	q, _, err := c.Quotes.GetQuoteFromInstrument(i)
+	if err != nil {
+		return nil, nil, err
+	}
+	lastPrice, _ := strconv.ParseFloat(q.LastTradePrice, 64)
+	buyPrice := lastPrice + 0.2
+
 	tp := &TradeParams{
 		AccountUrl:    accountUrl,
 		InstrumentUrl: instrumentUrl,
 		Symbol:        symbol,
 		Quantity:      quantity,
 		OrderType:     orderType,
+		Price:         buyPrice,
 	}
 	return s.placeTrade(tp)
 }
 
-func (s *TradeService) placeTrade(tp *TradeParams) (*http.Response, error) {
+func (s *TradeService) placeTrade(tp *TradeParams) (*OrderResponse, *http.Response, error) {
 	params := url.Values{}
 
 	params.Add("account", tp.AccountUrl)
 	params.Add("instrument", tp.InstrumentUrl)
-	// params.add("price", bid_price)
-	// params.add("stop_price", stop_price)
+	params.Add("price", fmt.Sprintf("%v", tp.Price))
 	params.Add("quantity", strconv.Itoa(tp.Quantity))
 	params.Add("side", tp.OrderType)
 	params.Add("symbol", tp.Symbol)
@@ -53,8 +63,12 @@ func (s *TradeService) placeTrade(tp *TradeParams) (*http.Response, error) {
 	params.Add("trigger", "immediate")
 	params.Add("type", "market")
 
-	var r interface{}
-	resp, err := s.client.Post("orders/", params, &r)
+	or := &OrderResponse{}
+	resp, err := s.client.Post("orders/", params, or)
 
-	return resp, err
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return or, resp, err
 }

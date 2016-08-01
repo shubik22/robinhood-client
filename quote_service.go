@@ -12,10 +12,10 @@ func (s *QuoteService) GetQuote(p *Position) (*Quote, *http.Response, error) {
 		return nil, nil, err
 	}
 
-	return s.getQuote(i)
+	return s.GetQuoteFromInstrument(i)
 }
 
-func (s *QuoteService) getQuote(i *Instrument) (*Quote, *http.Response, error) {
+func (s *QuoteService) GetQuoteFromInstrument(i *Instrument) (*Quote, *http.Response, error) {
 	req, err := s.client.NewRequestWithFullUrl("GET", i.Quote, nil)
 	if err != nil {
 		return nil, nil, err

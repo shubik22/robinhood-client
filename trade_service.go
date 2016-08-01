@@ -37,7 +37,12 @@ func (s *TradeService) PlaceTrade(symbol, orderType string, quantity int) (*Orde
 		return nil, nil, err
 	}
 	lastPrice, _ := strconv.ParseFloat(q.LastTradePrice, 64)
-	buyPrice := lastPrice + 0.2
+	var buyPrice float64
+	if orderType == "buy" {
+		buyPrice = lastPrice + 0.2
+	} else {
+		buyPrice = lastPrice - 0.2
+	}
 
 	tp := &TradeParams{
 		AccountUrl:    accountUrl,

@@ -58,6 +58,7 @@ func (c *Client) Post(urlStr string, data url.Values, v interface{}) (resp *http
 
 	req, _ := http.NewRequest("POST", fullUrl, strings.NewReader(data.Encode()))
 	req.Header.Add("Authorization", fmt.Sprintf("Token %v", c.AuthToken))
+	req.Header.Add("Content-Type", "application/json; charset=utf8")
 
 	resp, err = c.Do(req, v)
 	if err != nil {

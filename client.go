@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 const (
@@ -47,6 +48,23 @@ func NewClient(username, password string) *Client {
 	c.Quotes = (*QuoteService)(&c.common)
 	c.Trades = (*TradeService)(&c.common)
 	return c
+}
+
+func (c *Client) Post(urlStr string, data url.Values, v interface{}) (resp *http.Response, err error) {
+	fullUrl, err := c.resolveUrl(urlStr)
+	if err != nil {
+		return nil, err
+	}
+
+	req, _ := http.NewRequest("POST", fullUrl, strings.NewReader(data.Encode()))
+	req.Header.Add("Authorization", fmt.Sprintf("Token %v", c.AuthToken))
+
+	resp, err = c.Do(req, v)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.handleResponse(resp, v)
 }
 
 func (c *Client) PostForm(urlStr string, data url.Values, v interface{}) (resp *http.Response, err error) {

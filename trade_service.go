@@ -54,7 +54,7 @@ func (s *TradeService) placeTrade(tp *TradeParams) (*http.Response, error) {
 	params.Add("type", "market")
 
 	var r interface{}
-	resp, err := s.client.PostForm("orders/", params, &r)
+	resp, err := s.client.Post("orders/", params, &r)
 
 	return resp, err
 }

@@ -190,7 +190,7 @@ func (c *Client) CheckResponse(r *http.Response) *ErrorResponse {
 	var f interface{}
 	data, err := ioutil.ReadAll(r.Body)
 	if err == nil && data != nil {
-		json.Unmarshal(data, f)
+		json.Unmarshal(data, &f)
 	}
 
 	return &ErrorResponse{

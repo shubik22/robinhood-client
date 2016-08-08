@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -129,11 +130,12 @@ func (c *Client) NewRequestWithFullUrl(method, fullUrl string, body interface{})
 func (c *Client) handleResponse(resp *http.Response, v interface{}) (*http.Response, error) {
 	defer resp.Body.Close()
 
-	err := c.CheckResponse(resp)
-	if err != nil {
-		return resp, err
+	respErr := c.CheckResponse(resp)
+	if respErr != nil {
+		return resp, respErr
 	}
 
+	var err error
 	if v != nil {
 		err = json.NewDecoder(resp.Body).Decode(v)
 		if err == io.EOF {
@@ -163,7 +165,18 @@ func (c *Client) resolveUrl(urlStr string) (string, error) {
 	return u.String(), err
 }
 
-func (c *Client) CheckResponse(r *http.Response) error {
+type ErrorResponse struct {
+	Response *http.Response
+	Body     interface{}
+}
+
+func (r *ErrorResponse) Error() string {
+	return fmt.Sprintf("%v %v: %d %+v",
+		r.Response.Request.Method, r.Response.Request.URL,
+		r.Response.StatusCode, r.Body)
+}
+
+func (c *Client) CheckResponse(r *http.Response) *ErrorResponse {
 	s := r.StatusCode
 
 	if 200 <= s && s <= 299 {
@@ -174,7 +187,16 @@ func (c *Client) CheckResponse(r *http.Response) error {
 		c.AuthToken = ""
 	}
 
-	return fmt.Errorf("Request failed with status code %v", s)
+	var f interface{}
+	data, err := ioutil.ReadAll(r.Body)
+	if err == nil && data != nil {
+		json.Unmarshal(data, f)
+	}
+
+	return &ErrorResponse{
+		Response: r,
+		Body:     f,
+	}
 }
 
 func (c *Client) getDefaultHeaders() map[string]string {
